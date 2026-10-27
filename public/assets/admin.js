@@ -26,7 +26,7 @@
     msg.className = 'msg'; msg.textContent = 'Checking…';
     enter().catch(function (err) {
       msg.className = 'msg err';
-      msg.textContent = err.status === 401 ? 'That key is not right. Check ADMIN_KEY in Netlify.' : err.message;
+      msg.textContent = err.status === 401 ? 'Incorrect key. Please try again.' : err.message;
     });
   });
   $('#logout').addEventListener('click', function () {
