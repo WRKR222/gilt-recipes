@@ -1,0 +1,13 @@
+{
+  "name": "the-gilt-recipes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The Gilt Butchery recipe blog: recipes per pork cut, likes, comments and feedback (Netlify Functions + Netlify Blobs).",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

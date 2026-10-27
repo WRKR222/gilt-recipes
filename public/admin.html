@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Kitchen admin · The Gilt Recipes</title>
+<meta name="theme-color" content="#16110F">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Literata:ital,opsz,wght@0,7..72,400..600;1,7..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/style.css">
+<style>
+  .ad{padding-top:32px;padding-bottom:80px}
+  .ad h1{font:800 clamp(32px,5vw,52px)/1 var(--f-d);letter-spacing:-.03em;margin:0 0 6px;text-transform:uppercase}
+  .login{max-width:440px;margin:60px auto;background:#fffaf2;border:1.5px solid var(--line);border-radius:var(--r);padding:28px}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 26px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .tabs .chip{border-color:#bcae98}
+  .rows{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+  .rows li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+  .rows h3{font:700 18px/1.25 var(--f-d);margin:0 0 4px}
+  .rows .sub{font:500 13.5px/1.4 var(--f-d);color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+  .rows .acts{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+  .sm{height:36px;padding:0 14px;border-radius:99px;border:1.5px solid var(--ink);background:none;font:600 13px/1 var(--f-d);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+  .sm:hover{background:var(--ink);color:var(--paper)}
+  .sm.del{border-color:var(--red);color:var(--red)}.sm.del:hover{background:var(--red);color:#fff}
+  .badge{font:700 11px/1 var(--f-d);letter-spacing:.1em;text-transform:uppercase;padding:4px 8px;border-radius:99px;background:var(--paper-2)}
+  .badge.draft{background:#e9d27c}
+  .editor{background:#fffaf2;border:1.5px solid var(--line);border-radius:var(--r);padding:clamp(18px,3vw,30px);margin-bottom:30px}
+  .editor .row3{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr))}
+  .hint{font:500 13px/1.4 var(--f-d);color:var(--muted);margin:0}
+  .imgprev{width:220px;max-width:100%;aspect-ratio:4/3;border-radius:12px;overflow:hidden;background:var(--paper-2)}
+  .imgprev img{width:100%;height:100%;object-fit:cover}
+  .check{display:flex;gap:10px;align-items:center;font:600 15px var(--f-d);cursor:pointer}
+  .check input{width:20px;height:20px;accent-color:var(--red)}
+  .changebox{border:1.5px dashed var(--gold-d);border-radius:12px;padding:14px;display:grid;gap:10px}
+  .stars-ro{color:var(--gold);letter-spacing:2px}
+</style>
+</head>
+<body>
+<header class="hd">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="View the blog">
+      <span class="pig-ico" style="color:var(--gold)"></span>
+      <span><b>THE <i>GILT</i></b><small>Kitchen admin</small></span>
+    </a>
+    <nav><button class="pill" id="logout" type="button" hidden style="color:var(--bone)">Log out</button></nav>
+  </div>
+</header>
+
+<main class="wrap ad">
+  <form class="login form" id="loginForm">
+    <h1>Kitchen admin</h1>
+    <p class="hint">Enter the admin key set in Netlify (environment variable <code>ADMIN_KEY</code>).</p>
+    <div class="field"><label class="lbl" for="key">Admin key</label><input id="key" type="password" autocomplete="current-password" required></div>
+    <button class="btn btn-red" type="submit">Open the kitchen</button>
+    <p class="msg" role="status"></p>
+  </form>
+
+  <div id="app" hidden>
+    <h1>The kitchen</h1>
+    <p class="hint">Add and edit recipes, answer comments and read private feedback.</p>
+    <div class="tabs" role="tablist">
+      <button class="chip" type="button" role="tab" data-tab="recipes" aria-pressed="true">Recipes</button>
+      <button class="chip" type="button" role="tab" data-tab="comments" aria-pressed="false">Comments</button>
+      <button class="chip" type="button" role="tab" data-tab="feedback" aria-pressed="false">Feedback</button>
+    </div>
+
+    <section data-panel="recipes">
+      <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <p class="hint" id="rCount"></p>
+        <button class="btn btn-red" id="newBtn" type="button">+ New recipe</button>
+      </div>
+
+      <form class="editor form" id="editor" hidden novalidate>
+        <h2 class="lbl" id="edTitle" style="margin:0;color:var(--red)">New recipe</h2>
+        <div class="field"><label class="lbl" for="fTitle">Title</label><input id="fTitle" maxlength="140" required></div>
+        <div class="row">
+          <div class="field"><label class="lbl" for="fCut">Cut</label><select id="fCut"></select></div>
+          <div class="field"><span class="lbl">Status</span><label class="check"><input type="checkbox" id="fPub" checked> Published (visible to customers)</label></div>
+        </div>
+        <div class="field"><label class="lbl" for="fIntro">Short intro</label><textarea id="fIntro" maxlength="600" style="min-height:80px"></textarea></div>
+        <div class="row3">
+          <div class="field"><label class="lbl" for="fPrep">Prep (min)</label><input id="fPrep" type="number" min="0" inputmode="numeric"></div>
+          <div class="field"><label class="lbl" for="fCook">Cook (min)</label><input id="fCook" type="number" min="0" inputmode="numeric"></div>
+          <div class="field"><label class="lbl" for="fServes">Serves</label><input id="fServes" type="number" min="0" inputmode="numeric"></div>
+        </div>
+        <div class="field"><label class="lbl" for="fIngr">Ingredients <span style="text-transform:none;letter-spacing:0">(one per line)</span></label><textarea id="fIngr" style="min-height:170px"></textarea></div>
+        <div class="field"><label class="lbl" for="fSteps">Method <span style="text-transform:none;letter-spacing:0">(one step per line)</span></label><textarea id="fSteps" style="min-height:220px"></textarea></div>
+        <div class="field"><label class="lbl" for="fTip">Owner's tip (optional)</label><textarea id="fTip" maxlength="600" style="min-height:70px"></textarea></div>
+        <div class="field">
+          <span class="lbl">Photo</span>
+          <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center">
+            <div class="imgprev" id="imgPrev"></div>
+            <div style="display:grid;gap:8px">
+              <label class="sm" style="width:max-content">Upload photo<input type="file" id="fImg" accept="image/*" class="sr"></label>
+              <button class="sm del" type="button" id="imgRemove">Remove photo</button>
+              <p class="hint">Photos are resized automatically.</p>
+            </div>
+          </div>
+        </div>
+        <div class="changebox" id="changeBox" hidden>
+          <div class="field"><label class="lbl" for="fNote">What changed? (customers see this)</label><input id="fNote" maxlength="200" placeholder="e.g. Added a marinade step and shorter oven time"></div>
+          <label class="check"><input type="checkbox" id="fSilent"> Small fix only (typo). Don't mark the recipe as Updated.</label>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <button class="btn btn-red" type="submit" id="saveBtn">Save recipe</button>
+          <button class="btn btn-line" type="button" id="cancelBtn">Cancel</button>
+          <p class="msg" role="status"></p>
+        </div>
+      </form>
+
+      <ul class="rows" id="rList"></ul>
+    </section>
+
+    <section data-panel="comments" hidden><ul class="rows" id="cList"></ul></section>
+    <section data-panel="feedback" hidden><ul class="rows" id="fList"></ul></section>
+
+  </div>
+</main>
+
+<script src="/assets/app.js"></script>
+<script src="/assets/admin.js"></script>
+</body>
+</html>
