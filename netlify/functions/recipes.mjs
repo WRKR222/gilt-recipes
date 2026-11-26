@@ -1,4 +1,4 @@
-import { CUTS, SLUG_RE, store, json, bad, isAdmin, clean, cleanList, slugify, readJSON, listJSON } from '../lib/shared.mjs';
+import { CUTS, normCut, SLUG_RE, store, json, bad, isAdmin, clean, cleanList, slugify, readJSON, listJSON } from '../lib/shared.mjs';
 import seed from '../lib/seed.mjs';
 
 const IMG_RE = /^[a-z0-9-]{6,60}\.(jpg|png|webp)$/;
@@ -54,12 +54,12 @@ export default async (req) => {
     await ensureSeeded(st);
     if (slug) {
       if (!SLUG_RE.test(slug)) return bad('Bad slug');
-      const r = await st.get(`r/${slug}`, { type: 'json' });
+      const r = normCut(await st.get(`r/${slug}`, { type: 'json' }));
       if (!r || (!r.published && !admin)) return bad('Recipe not found', 404);
       return json({ recipe: r });
     }
     if (url.searchParams.get('all') && !admin) return bad('Unauthorized', 401);
-    const all = await listJSON(st, 'r/');
+    const all = (await listJSON(st, 'r/')).map(normCut);
     const list = all.filter((r) => admin || r.published)
       .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
     return json({ recipes: admin ? list : list.map(summary), cuts: CUTS });
@@ -81,7 +81,7 @@ export default async (req) => {
 
   if (req.method === 'PUT') {
     if (!slug || !SLUG_RE.test(slug)) return bad('Bad slug');
-    const old = await st.get(`r/${slug}`, { type: 'json' });
+    const old = normCut(await st.get(`r/${slug}`, { type: 'json' }));
     if (!old) return bad('Recipe not found', 404);
     const body = await readJSON(req);
     const [fields, err] = parse(body);

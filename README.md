@@ -28,9 +28,9 @@ All data lives in **Netlify Blobs**, so there is no database to set up.
 
 ## Cut chart
 
-The home page chart is traced from `tools/pig_chart/reference.jpg`: head, jowl, neck, shoulder, picnic, hocks, back fat, loin, ribs, bacon (belly), leg and ham. Each zone is clickable and keyboard-focusable, shows how many recipes it has (a gold number), fades when it has none yet ("coming soon"), and filters the recipe grid. Both hocks are one cut ("Hocks & Trotters") and light up together.
+The home page chart is traced from `tools/pig_chart/reference.jpg`: head, jowl, neck, shoulder, picnic, hocks, back fat, loin, tenderloin, baby back ribs, spare ribs, bacon (belly), leg and ham. Tenderloin is cut from the lower rear of the loin (running up to the ham), and the ribs are split into baby back (front) and spare ribs (rear), along the curves in `SPLITS` in `build_chart.py`. Each zone is clickable and keyboard-focusable, shows how many recipes it has (a gold number), fades when it has none yet ("coming soon"), and filters the recipe grid. Both hocks are one cut ("Hocks & Trotters") and light up together.
 
-Cuts are defined twice and must match: `G.CUTS` in `public/assets/app.js` and `CUTS` in `netlify/lib/shared.mjs`. Recipes saved before the change keep working (`shoulder`, `loin`, `ribs`, `belly`, `leg`, `trotters` are unchanged). New cuts appear in the admin Cut menu automatically. To regenerate the artwork:
+Cuts are defined twice and must match: `G.CUTS` in `public/assets/app.js` and `CUTS` in `netlify/lib/shared.mjs`. Recipes saved before the change keep working (`shoulder`, `loin`, `belly`, `leg`, `trotters` are unchanged). Old `ribs` recipes are read as `babyback` when the title or slug says "baby back", otherwise `spareribs` (`normCut` in `shared.mjs`), and old `?cut=ribs` links open Spare Ribs. New cuts appear in the admin Cut menu automatically. To regenerate the artwork:
 ```bash
 pip install numpy pillow scipy scikit-image
 python3 tools/pig_chart/build_chart.py     # writes tools/pig_chart/chart.svg.html; paste its <svg> into index.html
