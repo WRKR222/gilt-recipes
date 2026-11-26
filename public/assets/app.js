@@ -7,12 +7,16 @@
   G.WA = '254722104932';               // WhatsApp / order line from the Instagram bio
   G.CUTS = {          // same keys and order as netlify/lib/shared.mjs; order follows the pig, nose to tail
     head: 'Head', jowl: 'Jowl', neck: 'Neck', shoulder: 'Shoulder', picnic: 'Picnic', backfat: 'Back Fat',
-    loin: 'Loin & Chops', ribs: 'Ribs', belly: 'Belly & Bacon', leg: 'Leg & Ham', trotters: 'Hocks & Trotters',
+    loin: 'Loin & Chops', tenderloin: 'Tenderloin', babyback: 'Baby Back Ribs', spareribs: 'Spare Ribs',
+    belly: 'Belly & Bacon', leg: 'Leg & Ham', trotters: 'Hocks & Trotters',
   };
   G.SHORT = {
     head: 'Head', jowl: 'Jowl', neck: 'Neck', shoulder: 'Shoulder', picnic: 'Picnic', backfat: 'Back Fat',
-    loin: 'Loin', ribs: 'Ribs', belly: 'Belly', leg: 'Leg', trotters: 'Hocks',
+    loin: 'Loin', tenderloin: 'Tenderloin', babyback: 'Baby Back', spareribs: 'Spare Ribs',
+    belly: 'Belly', leg: 'Leg', trotters: 'Hocks',
   };
+  // old links (?cut=ribs) from before the ribs were split into baby back and spare ribs
+  G.CUT_ALIAS = { ribs: 'spareribs' };
 
   G.esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {

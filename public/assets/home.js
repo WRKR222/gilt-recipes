@@ -12,7 +12,8 @@
     params.delete('src');
     history.replaceState(null, '', location.pathname + (params.toString() ? '?' + params : '') + location.hash);
   }
-  if (G.CUTS[params.get('cut')]) current = params.get('cut');
+  var askCut = G.CUT_ALIAS[params.get('cut')] || params.get('cut');
+  if (G.CUTS[askCut]) current = askCut;
 
   $('#hdOrder').href = G.waLink("Hi The Gilt, I'd like to place an order.");
   G.feedbackForm($('#fbForm'));

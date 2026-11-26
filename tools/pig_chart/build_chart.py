@@ -1,6 +1,8 @@
 """Rebuilds the cut-chart SVG (zones + labels) from reference.jpg and prints it to chart.svg.html.
 Needs: pip install numpy pillow scipy scikit-image.  Run:  python3 tools/pig_chart/build_chart.py
-Zones are the separate dark shapes in the picture (the white lines are gaps between them)."""
+Zones are the separate dark shapes in the picture (the white lines are gaps between them).
+Cuts the picture does not split (tenderloin, baby back / spare ribs) are cut out of their parent
+shape along SPLITS, with a gap as wide as the picture's own white lines, so every zone still fits flush."""
 import os, sys, json
 import numpy as np
 from PIL import Image
@@ -23,12 +25,38 @@ ZONES = [
     (22, 'picnic',   'Picnic',      [('PICNIC', 260.4, 306.5, 2.0, 57, 23)]),
     (34, 'trotters', 'Front hock',  [('HOCK', 236.3, 360.4, 5.5, 52, 24)]),
     (1,  'backfat',  'Back fat',    [('BACK FAT', 416.5, 125.5, 0.3, 161, 41)]),
-    (12, 'loin',     'Loin',        [('LOIN', 399.8, 195.0, -4.0, 101, 56)]),
-    (17, 'ribs',     'Ribs',        [('RIBS', 379.8, 278.6, -5.2, 85, 46)]),
+    (12, 'loin',     'Loin',        [('LOIN', 364.0, 192.0, -3.0, 78, 44)], (340, 200)),
+    (12, 'tenderloin', 'Tenderloin', [('TENDERLOIN', 456.0, 212.0, -9.5, 84, 13)], (470, 212)),
+    (17, 'babyback', 'Baby back ribs', [('BABY BACK', 354.0, 270.0, -4.0, 80, 17), ('RIBS', 354.0, 293.0, -4.0, 42, 17)], (350, 280)),
+    (17, 'spareribs', 'Spare ribs', [('SPARE', 440.0, 258.0, -10.0, 56, 17), ('RIBS', 436.0, 280.0, -12.0, 40, 17)], (450, 260)),
     (19, 'belly',    'Bacon',       [('BACON', 452.8, 331.3, -9.3, 97, 34)]),
     (3,  'leg',      'Leg and ham', [('LEG', 592.5, 180.5, 0, 101, 71), ('HAM', 597.0, 255.0, 0, 102, 58)]),
     (28, 'trotters', 'Hind hock',   [('HOCK', 595.3, 340.2, -1.8, 61, 28)]),
 ]
+
+# component id -> cutting curve (through these points, smoothed); pieces are picked by the seed point in ZONES
+SPLITS = {
+    12: [(358, 248), (392, 222), (432, 200), (472, 188), (518, 182)],   # tenderloin: lower rear of the loin, up to the ham
+    17: [(418, 224), (410, 270), (399, 324)],                           # baby back ribs (front) | spare ribs (rear)
+}
+GAP = 4.6   # px, same as the picture's white lines
+
+def split_mask(m, pts, seed):
+    for _ in range(4):                       # Chaikin smoothing
+        q = [pts[0]]
+        for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+            q += [(0.75 * ax + 0.25 * bx, 0.75 * ay + 0.25 * by), (0.25 * ax + 0.75 * bx, 0.25 * ay + 0.75 * by)]
+        pts = q + [pts[-1]]
+    line = np.zeros_like(m)
+    for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+        for t in np.linspace(0, 1, 40):
+            line[int(round(ay + (by - ay) * t)), int(round(ax + (bx - ax) * t))] = True
+    cut = m & (ndi.distance_transform_edt(~line) > GAP / 2)
+    parts, n = ndi.label(cut)
+    sizes = ndi.sum(cut, parts, range(1, n + 1))
+    pid = parts[seed[1], seed[0]]
+    assert pid and sizes[pid - 1] > 300, 'seed %s is not inside a piece' % (seed,)
+    return parts == pid
 
 def path_of(mask):
     sm = ndi.gaussian_filter(mask.astype(float), 1.4)
@@ -41,8 +69,9 @@ def path_of(mask):
 
 parts_z, parts_l, badges = [], [], []
 x0 = y0 = 1e9; x1 = y1 = 0
-for cid, key, name, lines in ZONES:
+for cid, key, name, lines, *seed in ZONES:
     m = lab == cid
+    if cid in SPLITS: m = split_mask(ndi.binary_fill_holes(m), SPLITS[cid], seed[0])   # fill the lettering first
     f = ndi.binary_fill_holes(m)
     if key == 'leg':                       # keep the tail's curl open
         f = np.where((xx >= 655) & (yy <= 175), m, f)

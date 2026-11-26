@@ -28,7 +28,7 @@ export default [
   {
     slug: 'sticky-honey-chilli-spare-ribs',
     title: 'Sticky honey-chilli spare ribs',
-    cut: 'ribs',
+    cut: 'spareribs',
     intro: 'Slow in the oven until tender, then glazed hot until sticky. The family-favourite way to cook a full rack of spare ribs.',
     prepMins: 15, cookMins: 150, serves: 4,
     ingredients: [
@@ -54,7 +54,7 @@ export default [
   {
     slug: 'baby-back-ribs-dry-rub',
     title: 'Low-and-slow baby back ribs with a dry rub',
-    cut: 'ribs',
+    cut: 'babyback',
     intro: 'Baby backs are leaner and more tender than spare ribs. A simple spice rub and slow heat is all they need.',
     prepMins: 15, cookMins: 120, serves: 2,
     ingredients: [

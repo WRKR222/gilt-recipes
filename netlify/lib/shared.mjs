@@ -9,11 +9,21 @@ export const CUTS = {
   picnic: 'Picnic',
   backfat: 'Back Fat',
   loin: 'Loin & Chops',
-  ribs: 'Ribs',
+  tenderloin: 'Tenderloin',
+  babyback: 'Baby Back Ribs',
+  spareribs: 'Spare Ribs',
   belly: 'Belly & Bacon',
   leg: 'Leg & Ham',
   trotters: 'Hocks & Trotters',
 };
+
+/** Recipes saved before "ribs" was split into baby back and spare ribs keep working. */
+export function normCut(r) {
+  if (r && r.cut === 'ribs') {
+    r.cut = /baby[\s-]*back/i.test(`${r.slug} ${r.title}`) ? 'babyback' : 'spareribs';
+  }
+  return r;
+}
 
 export const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/;
 export const UID_RE = /^[a-z0-9]{12,40}$/;
